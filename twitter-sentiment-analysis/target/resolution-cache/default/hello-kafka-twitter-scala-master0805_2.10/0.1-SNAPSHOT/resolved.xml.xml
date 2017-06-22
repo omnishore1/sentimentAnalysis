@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0" xmlns:e="http://ant.apache.org/ivy/extra">
+	<info organisation="default"
+		module="hello-kafka-twitter-scala-master0805_2.10"
+		revision="0.1-SNAPSHOT"
+		status="integration"
+		publication="20170508065107"
+	>
+		<description>
+		hello-kafka-twitter-scala-master0805
+		</description>
+	</info>
+	<configurations>
+		<conf name="compile" visibility="public" description=""/>
+		<conf name="runtime" visibility="public" description="" extends="compile"/>
+		<conf name="test" visibility="public" description="" extends="runtime"/>
+		<conf name="provided" visibility="public" description=""/>
+		<conf name="optional" visibility="public" description=""/>
+		<conf name="compile-internal" visibility="private" description="" extends="compile,optional,provided"/>
+		<conf name="runtime-internal" visibility="private" description="" extends="runtime,optional"/>
+		<conf name="test-internal" visibility="private" description="" extends="test,optional,provided"/>
+		<conf name="plugin" visibility="private" description=""/>
+		<conf name="sources" visibility="public" description=""/>
+		<conf name="docs" visibility="public" description=""/>
+		<conf name="pom" visibility="public" description=""/>
+		<conf name="scala-tool" visibility="private" description=""/>
+		<conf name="ensime-internal" visibility="private" description=""/>
+	</configurations>
+	<publications>
+		<artifact name="hello-kafka-twitter-scala-master0805_2.10" type="pom" ext="pom" conf="pom"/>
+		<artifact name="hello-kafka-twitter-scala-master0805_2.10" type="jar" ext="jar" conf="compile"/>
+		<artifact name="hello-kafka-twitter-scala-master0805_2.10" type="src" ext="jar" conf="sources" e:classifier="sources"/>
+		<artifact name="hello-kafka-twitter-scala-master0805_2.10" type="doc" ext="jar" conf="docs" e:classifier="javadoc"/>
+	</publications>
+	<dependencies>
+		<dependency org="org.scala-lang" name="scala-compiler" rev="2.10.4" transitive="false" conf="ensime-internal->default(compile)"/>
+		<dependency org="org.scala-lang" name="scala-compiler" rev="2.10.4" conf="scala-tool->default,optional(default)"/>
+		<dependency org="org.scala-lang" name="scala-library" rev="2.10.4" transitive="false" conf="ensime-internal->default(compile)"/>
+		<dependency org="org.scala-lang" name="scala-library" rev="2.10.4" conf="compile->default(compile)"/>
+		<dependency org="org.scala-lang" name="scala-library" rev="2.10.4" conf="scala-tool->default,optional(default)"/>
+		<dependency org="org.scala-lang" name="scala-reflect" rev="2.10.4" transitive="false" conf="ensime-internal->default(compile)"/>
+		<dependency org="org.scala-lang" name="scalap" rev="2.10.4" transitive="false" conf="ensime-internal->default(compile)"/>
+		<dependency org="org.apache.kafka" name="kafka_2.10" rev="0.8.1" conf="compile->default(compile)">
+			<exclude org="javax.jms" module="jms" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jdmk" module="jmxtools" name="*" type="*" ext="*" conf="" matcher="exact"/>
+			<exclude org="com.sun.jmx" module="jmxri" name="*" type="*" ext="*" conf="" matcher="exact"/>
+		</dependency>
+		<dependency org="com.typesafe" name="config" rev="1.2.1" conf="compile->default(compile)"/>
+		<dependency org="com.typesafe.play" name="play-json_2.10" rev="2.4.0-M2" conf="compile->default(compile)"/>
+		<dependency org="org.scalatest" name="scalatest_2.10" rev="2.2.1" conf="test->default(compile)"/>
+		<dependency org="org.twitter4j" name="twitter4j-core" rev="4.0.2" conf="compile->default(compile)"/>
+		<dependency org="org.twitter4j" name="twitter4j-stream" rev="4.0.2" conf="compile->default(compile)"/>
+		<dependency org="org.codehaus.jackson" name="jackson-core-asl" rev="1.6.1" conf="compile->default(compile)"/>
+		<dependency org="org.scala-tools.testing" name="specs_2.8.0" rev="1.6.5" conf="test->default(compile)"/>
+		<dependency org="org.apache.spark" name="spark-streaming-kafka_2.10" rev="1.6.1" conf="compile->default(compile)"/>
+		<dependency org="org.apache.spark" name="spark-core_2.10" rev="1.6.1" conf="compile->default(compile)"/>
+		<dependency org="org.apache.spark" name="spark-streaming_2.10" rev="1.6.1" conf="compile->default(compile)"/>
+		<dependency org="org.apache.spark" name="spark-sql_2.10" rev="1.6.1" conf="compile->default(compile)"/>
+		<dependency org="org.apache.spark" name="spark-mllib_2.10" rev="1.6.1" conf="compile->default(compile)"/>
+		<dependency org="com.google.code.gson" name="gson" rev="2.6.2" conf="compile->default(compile)"/>
+		<dependency org="commons-cli" name="commons-cli" rev="1.3.1" conf="compile->default(compile)"/>
+		<dependency org="com.stratio.datasource" name="spark-mongodb_2.10" rev="0.11.1" conf="compile->default(compile)"/>
+		<dependency org="org.apache.spark" name="spark-streaming-twitter_2.10" rev="1.6.1" conf="compile->default(compile)"/>
+		<dependency org="com.aylien.textapi" name="client" rev="0.6.0" conf="compile->default(compile)"/>
+		<dependency org="edu.stanford.nlp" name="stanford-corenlp" rev="3.4" conf="compile->default(compile)">
+			<artifact name="stanford-corenlp" type="jar" ext="jar" conf="compile"/>
+			<artifact name="stanford-corenlp" type="jar" ext="jar" conf="*" e:classifier="models"/>
+		</dependency>
+		<dependency org="edu.stanford.nlp" name="stanford-parser" rev="3.4" conf="compile->default(compile)"/>
+	</dependencies>
+</ivy-module>
