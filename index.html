@@ -1,0 +1,405 @@
+<!Doctype html>
+<html>
+<head>
+<title>Twitter sentiment analysis</title>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script src="http://code.highcharts.com/modules/exporting.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://code.highcharts.com/highcharts-more.js"></script>
+<script src="https://code.highcharts.com/modules/solid-gauge.js"></script>
+<script type="text/javascript" src="http://static.fusioncharts.com/code/latest/fusioncharts.js"></script>
+<script type="text/javascript" src="http://static.fusioncharts.com/code/latest/themes/fusioncharts.theme.fint.js?cacheBust=56"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<style type="text/css">
+    .highcharts-yaxis-grid .highcharts-grid-line {
+    display: none;
+}
+</style>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        var socket = io();
+        var series;
+            var compteur = 0;
+        var lastData = "";
+        var div = document.querySelector("#container"),
+            frag = document.createDocumentFragment(),
+            select = document.createElement("select");
+        var div1 = document.querySelector("#container1"),
+            frag1 = document.createDocumentFragment(),
+            select1 = document.createElement("select");
+// The  gauge 1
+    var gaugeOptions = {
+
+    chart: {
+        type: 'solidgauge'
+    },
+
+    title: null,
+
+    pane: {
+        center: ['50%', '85%'],
+        size: '140%',
+        startAngle: -90,
+        endAngle: 90,
+        background: {
+            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || '#EEE',
+            innerRadius: '60%',
+            outerRadius: '100%',
+            shape: 'arc'
+        }
+    },
+
+    tooltip: {
+        enabled: false
+    },
+
+    // the value axis
+    yAxis: {
+        stops: [
+            [0.1, '#55BF3B'], // green
+            [0.5, '#DDDF0D'], // yellow
+            [0.9, '#DF5353'] // red
+        ],
+        lineWidth: 0,
+        minorTickInterval: null,
+        tickAmount: 2,
+        title: {
+            y: -70
+        },
+        labels: {
+            y: 16
+        }
+    },
+
+    plotOptions: {
+        solidgauge: {
+            dataLabels: {
+                y: 5,
+                borderWidth: 0,
+                useHTML: true
+            }
+        }
+    }
+};
+// The  gauge
+    var gaugeOptions = {
+
+    chart: {
+        type: 'solidgauge'
+    },
+
+    title: null,
+
+    pane: {
+        center: ['50%', '85%'],
+        size: '140%',
+        startAngle: -90,
+        endAngle: 90,
+        background: {
+            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || '#EEE',
+            innerRadius: '60%',
+            outerRadius: '100%',
+            shape: 'arc'
+        }
+    },
+
+    tooltip: {
+        enabled: false
+    },
+
+    // the value axis
+    yAxis: {
+        stops: [
+            [0.1, '#55BF3B'], // green
+            [0.5, '#DDDF0D'], // yellow
+            [0.9, '#DF5353'] // red
+        ],
+        lineWidth: 0,
+        minorTickInterval: null,
+        tickAmount: 2,
+        title: {
+            y: -70
+        },
+        labels: {
+            y: 16
+        }
+    },
+
+    plotOptions: {
+        solidgauge: {
+            dataLabels: {
+                y: 5,
+                borderWidth: 0,
+                useHTML: true
+            }
+        }
+    }
+};
+
+
+// The speed gauge
+
+var chartSpeed = Highcharts.chart('container-speed', Highcharts.merge(gaugeOptions, {
+    yAxis: {
+        min: 0,
+        max: 50,
+        center: 1,
+        title: {
+            text: '<span style="font-size: 18px;font-weight:bolder;font-familly: Tahoma;">Nombre de tweets</span>'
+        }
+    },
+
+    credits: {
+        enabled: false
+    },
+
+    series: [{
+        name: 'Nombre de tweets',
+        data: [0],
+        dataLabels: {
+            format: '<div style="text-align:center"><span style="font-size:25px;color:' +
+                ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y}</span><br/>' +
+                   '<span style="font-size:10px;color:silver">tweets/jour</span></div>'
+        },
+        tooltip: {
+            valueSuffix: 'tweets/jour'
+        }
+    }]
+
+}));
+
+// The speed gauge
+
+var chartSpeed1 = Highcharts.chart('container-speed1', Highcharts.merge(gaugeOptions, {
+    yAxis: {
+        min: 0,
+        max: 50,
+        center: 1,
+        title: {
+            text: '<span style="font-size: 18px;font-weight:bolder;font-familly: Tahoma;">Nombre de Commentaires</span>'
+        }
+    },
+
+    credits: {
+        enabled: false
+    },
+
+    series: [{
+        name: 'Nombre de comments',
+        data: [0],
+        dataLabels: {
+            format: '<div style="text-align:center"><span style="font-size:25px;color:' +
+                ((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y}</span><br/>' +
+                   '<span style="font-size:10px;color:silver">comments/jour</span></div>'
+        },
+        tooltip: {
+            valueSuffix: 'comments/jour'
+        }
+    }]
+
+}));
+socket.on('message', function(data){
+    var res = data.split("|");
+    if (res[0]=="Twitter") {
+                var tweet = res[1];
+                var sentiment = res[2];
+                var somme = parseInt(res[3]);
+                var Rapport = parseInt(res[4]);
+                
+                setInterval(function () {
+                    var point,
+                        newVal,
+                        inc;
+
+                    if (chartSpeed) {
+                        point = chartSpeed.series[0].points[0];
+                        point.update(somme);
+                    }
+                },);
+
+
+                FusionCharts.ready(function(){
+                    var fusioncharts = new FusionCharts({
+                    type: 'angulargauge',
+                    renderAt: 'chart-container',
+                    width: '400',
+                    height: '250',
+                    dataFormat: 'json',
+                    dataSource: {
+                        "chart": {
+                            "caption": "Sentiment globale des tweets ",
+                            "subcaption": "(en %)",
+                            "lowerLimit": "0",
+                            "upperLimit": "100",
+                            "lowerLimitDisplay": "Negative",
+                            "upperLimitDisplay": "Positive",
+                            "showValue": "1",
+                            "valueBelowPivot": "1",
+                            "theme": "fint"
+                        },
+                        "colorRange": {
+                            "color": [{
+                                "minValue": "-100",
+                                "maxValue": "0",
+                                "code": "#e44a00"
+                            }, {
+                                "minValue": "0",
+                                "maxValue": "65",
+                                "code": "#f8bd19"
+                            }, {
+                                "minValue": "75",
+                                "maxValue": "100",
+                                "code": "#6baa01"
+                            }]
+                        },
+                        "dials": {
+                            "dial": [{
+                                "value": Rapport
+                            }]
+                        }
+                    }
+                }
+                );
+                    fusioncharts.render();
+                });
+            
+
+        if (tweet !== lastData){
+                lastData = tweet;
+                select.options.add( new Option(tweet+", "+sentiment,"FI") );
+                select.size = 8;
+                frag.appendChild(select);
+                div.appendChild(frag);
+           }
+         } 
+    
+        
+        else if (res[0]=="Facebook") {
+		var nbComments = parseInt(res[1]);
+                var userPost = res[2];
+                var messagePost = res[3];
+                var usercomment = res[4];
+                var Commentaire = res[5];
+                var sentiment = res[6];
+                var Rapport = res[7];
+                setInterval(function () {
+                    var point,
+                        newVal,
+                        inc;
+
+                    if (chartSpeed1) {
+                        point = chartSpeed1.series[0].points[0];
+                        point.update(nbComments);
+                    }
+                },);
+
+
+                FusionCharts.ready(function(){
+                    var fusioncharts = new FusionCharts({
+                    type: 'angulargauge',
+                    renderAt: 'chart-container1',
+                    width: '400',
+                    height: '250',
+                    dataFormat: 'json',
+                    dataSource: {
+                        "chart": {
+                            "caption": "Sentiment globale des commentaires ",
+                            "subcaption": "(en %)",
+                            "lowerLimit": "0",
+                            "upperLimit": "100",
+                            "lowerLimitDisplay": "Negative",
+                            "upperLimitDisplay": "Positive",
+                            "showValue": "1",
+                            "valueBelowPivot": "1",
+                            "theme": "fint"
+                        },
+                        "colorRange": {
+                            "color": [{
+                                "minValue": "-100",
+                                "maxValue": "0",
+                                "code": "#e44a00"
+                            }, {
+                                "minValue": "0",
+                                "maxValue": "65",
+                                "code": "#f8bd19"
+                            }, {
+                                "minValue": "75",
+                                "maxValue": "100",
+                                "code": "#6baa01"
+                            }]
+                        },
+                        "dials": {
+                            "dial": [{
+                                "value": Rapport
+                            }]
+                        }
+                    }
+                }
+                );
+                    fusioncharts.render();
+                });
+            
+
+        if (Commentaire !== lastData){
+                lastData = Commentaire;
+                select1.options.add( new Option(Commentaire+", "+sentiment,"FI") );
+                select1.size = 8;
+                frag1.appendChild(select1);
+                div1.appendChild(frag1);
+           }
+    }
+
+        });
+    });
+</script>
+</head>
+<body  style="background-image:url(bg.jpg)">
+<div class="container">
+<div class="row">
+<div class="col-md-6">
+<u style="margin-top: 30px;margin-left:90px;"><b><font color='green'>Analyse Twitter</font></b></u>
+</br>
+    <div id="container-speed" style="width: 300px; height: 200px; float: left;margin-top: 30px;margin-left:90px;"></div>
+</div>
+
+
+<div class="col-md-6">
+<u style="margin-top: 30px;margin-left:90px;"><b><font color='green'>Analyse Facebook</font></b></u>
+</br>
+    <div id="container-speed1" style="width: 300px; height: 200px; float: left;margin-top: 30px;margin-left:90px;"></div>
+    <!--div id="container-rpm" style="width: 300px; height:200px; float: left"></div-->
+</div>
+</div>
+
+<hr style="height: 2px; color: #839D2D; background-color: #839D2D; width: 80%; border: none;">
+
+<div class="row">
+<div class="col-md-6"> 
+<div id="chart-container"></div>
+</div>
+<div class="col-md-6"> 
+<div id="chart-container1"></div>
+</div>
+</div>
+
+<hr style="height: 2px; color: #839D2D; background-color: #839D2D; width: 80%; border: none;">
+
+<div class="row">
+<div class="col-md-6"> 
+<p><u><b><i>Les tweets:</i></b></u></p>
+<div id="container" style="height:60%;width:40%;float: left;"></div>
+</div>
+<div class="col-md-6"> 
+<p><u><b><i>Les commentaires:</i></b></u></p>
+<div id="container1" style="height:60%;width:40%;float: left;"></div>
+</div>
+</div>
+</div>
+</body>
+</html>
